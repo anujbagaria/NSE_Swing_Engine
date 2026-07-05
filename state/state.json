@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-07-05T13:37:18.530486+00:00",
+  "last_saturday_run": "2026-07-05T14:22:00.902368+00:00",
   "last_monday_run": null,
   "open_positions": [],
   "active_advisories": [
@@ -17,7 +17,7 @@
       "regime": "neutral",
       "atr": 11.008000691731771,
       "channel_as_of": "2026-06-29",
-      "created_at": "2026-07-05T13:37:17.596250+00:00",
+      "created_at": "2026-07-05T14:21:59.197816+00:00",
       "rationale": "Buy breakout GTT @ 241.09 (20wk high + 0.1*ATR, regime=neutral). Qty 30 sized to 1% risk; on fill place a single sell-GTT stop at 208.07 (no fixed target - trailing stop is the exit)."
     },
     {
@@ -32,7 +32,7 @@
       "regime": "neutral",
       "atr": 23.319999186197915,
       "channel_as_of": "2026-06-29",
-      "created_at": "2026-07-05T13:37:17.812536+00:00",
+      "created_at": "2026-07-05T14:21:59.570777+00:00",
       "rationale": "Buy breakout GTT @ 641.32 (20wk high + 0.1*ATR, regime=neutral). Qty 14 sized to 1% risk; on fill place a single sell-GTT stop at 571.36 (no fixed target - trailing stop is the exit)."
     },
     {
@@ -47,7 +47,7 @@
       "regime": "neutral",
       "atr": 2.0220006306966147,
       "channel_as_of": "2026-06-29",
-      "created_at": "2026-07-05T13:37:18.014208+00:00",
+      "created_at": "2026-07-05T14:22:00.058558+00:00",
       "rationale": "Buy breakout GTT @ 37.40 (20wk high + 0.1*ATR, regime=neutral). Qty 164 sized to 1% risk; on fill place a single sell-GTT stop at 31.34 (no fixed target - trailing stop is the exit)."
     },
     {
@@ -62,7 +62,7 @@
       "regime": "neutral",
       "atr": 6.649332173665365,
       "channel_as_of": "2026-06-29",
-      "created_at": "2026-07-05T13:37:18.252449+00:00",
+      "created_at": "2026-07-05T14:22:00.486111+00:00",
       "rationale": "Buy breakout GTT @ 142.66 (20wk high + 0.1*ATR, regime=neutral). Qty 50 sized to 1% risk; on fill place a single sell-GTT stop at 122.72 (no fixed target - trailing stop is the exit)."
     },
     {
@@ -77,7 +77,7 @@
       "regime": "neutral",
       "atr": 18.791330973307293,
       "channel_as_of": "2026-06-29",
-      "created_at": "2026-07-05T13:37:18.530445+00:00",
+      "created_at": "2026-07-05T14:22:00.902323+00:00",
       "rationale": "Buy breakout GTT @ 277.88 (20wk high + 0.1*ATR, regime=neutral). Qty 17 sized to 1% risk; on fill place a single sell-GTT stop at 221.51 (no fixed target - trailing stop is the exit)."
     }
   ]
