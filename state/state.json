@@ -1,8 +1,84 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": null,
+  "last_saturday_run": "2026-07-05T13:37:18.530486+00:00",
   "last_monday_run": null,
   "open_positions": [],
-  "active_advisories": []
+  "active_advisories": [
+    {
+      "ticker": "MID150BEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 241.09080556233724,
+      "limit_price": 241.09080556233724,
+      "stop_price": 208.06680348714193,
+      "target_price": 0.0,
+      "quantity": 30,
+      "regime": "neutral",
+      "atr": 11.008000691731771,
+      "channel_as_of": "2026-06-29",
+      "created_at": "2026-07-05T13:37:17.596250+00:00",
+      "rationale": "Buy breakout GTT @ 241.09 (20wk high + 0.1*ATR, regime=neutral). Qty 30 sized to 1% risk; on fill place a single sell-GTT stop at 208.07 (no fixed target - trailing stop is the exit)."
+    },
+    {
+      "ticker": "BANKBEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 641.3219901529948,
+      "limit_price": 641.3219901529948,
+      "stop_price": 571.361992594401,
+      "target_price": 0.0,
+      "quantity": 14,
+      "regime": "neutral",
+      "atr": 23.319999186197915,
+      "channel_as_of": "2026-06-29",
+      "created_at": "2026-07-05T13:37:17.812536+00:00",
+      "rationale": "Buy breakout GTT @ 641.32 (20wk high + 0.1*ATR, regime=neutral). Qty 14 sized to 1% risk; on fill place a single sell-GTT stop at 571.36 (no fixed target - trailing stop is the exit)."
+    },
+    {
+      "ticker": "ITBEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 37.402200826009114,
+      "limit_price": 37.402200826009114,
+      "stop_price": 31.33619893391927,
+      "target_price": 0.0,
+      "quantity": 164,
+      "regime": "neutral",
+      "atr": 2.0220006306966147,
+      "channel_as_of": "2026-06-29",
+      "created_at": "2026-07-05T13:37:18.014208+00:00",
+      "rationale": "Buy breakout GTT @ 37.40 (20wk high + 0.1*ATR, regime=neutral). Qty 164 sized to 1% risk; on fill place a single sell-GTT stop at 31.34 (no fixed target - trailing stop is the exit)."
+    },
+    {
+      "ticker": "GOLDBEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 142.66493321736652,
+      "limit_price": 142.66493321736652,
+      "stop_price": 122.71693669637042,
+      "target_price": 0.0,
+      "quantity": 50,
+      "regime": "neutral",
+      "atr": 6.649332173665365,
+      "channel_as_of": "2026-06-29",
+      "created_at": "2026-07-05T13:37:18.252449+00:00",
+      "rationale": "Buy breakout GTT @ 142.66 (20wk high + 0.1*ATR, regime=neutral). Qty 50 sized to 1% risk; on fill place a single sell-GTT stop at 122.72 (no fixed target - trailing stop is the exit)."
+    },
+    {
+      "ticker": "SILVERBEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 277.87913309733074,
+      "limit_price": 277.87913309733074,
+      "stop_price": 221.50514017740886,
+      "target_price": 0.0,
+      "quantity": 17,
+      "regime": "neutral",
+      "atr": 18.791330973307293,
+      "channel_as_of": "2026-06-29",
+      "created_at": "2026-07-05T13:37:18.530445+00:00",
+      "rationale": "Buy breakout GTT @ 277.88 (20wk high + 0.1*ATR, regime=neutral). Qty 17 sized to 1% risk; on fill place a single sell-GTT stop at 221.51 (no fixed target - trailing stop is the exit)."
+    }
+  ]
 }
