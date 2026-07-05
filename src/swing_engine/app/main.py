@@ -9,7 +9,9 @@ import os
 import sys
 
 from ..adapters.market_data_yf import YFinanceMarketData
+from ..adapters.notifier_composite import CompositeNotifier
 from ..adapters.notifier_discord import DiscordNotifier
+from ..adapters.notifier_email import EmailNotifier
 from ..adapters.sentiment_gemini import GeminiSentiment
 from ..adapters.state_git import GitState
 from ..domain.config import DEFAULT_CONFIG
@@ -23,6 +25,15 @@ def _check_env() -> None:
     if missing:
         raise SystemExit(f"Missing required env vars: {', '.join(missing)}")
 
+def _build_notifier():
+    # Discord is the primary channel; email is an independent fallback that is
+    # only added if it's configured. Run Discord-only until email secrets are
+    # set, then it auto-activates — no code change needed to switch it on.
+    channels = [DiscordNotifier()]
+    email = EmailNotifier()
+    if email.configured:
+        channels.append(email)
+    return CompositeNotifier(channels)
 
 def build_orchestrator(repo_dir: str) -> Orchestrator:
     config = DEFAULT_CONFIG
@@ -33,7 +44,7 @@ def build_orchestrator(repo_dir: str) -> Orchestrator:
         market=YFinanceMarketData(config),
         sentiment=sentiment,
         state_store=state,
-        notifier=DiscordNotifier(),
+        notifier=_build_notifier(),
     )
 
 
