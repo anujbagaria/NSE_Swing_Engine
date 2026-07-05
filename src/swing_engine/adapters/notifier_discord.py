@@ -1,0 +1,68 @@
+"""Discord implementation of NotifierPort.
+
+Every message is an INSTRUCTION for the human to act on Kite manually — the
+engine holds no broker credentials and places nothing itself. Exit advice is
+expressed as a Kite OCO GTT (stop + target) so the position is never naked.
+"""
+from __future__ import annotations
+
+import json
+import os
+import urllib.request
+
+from ..domain.types import Action, Advisory
+
+_ACTION_VERB = {
+    Action.PLACE_GTT: "PLACE BUY GTT",
+    Action.PLACE_OCO_EXIT: "PLACE OCO EXIT (stop+target)",
+    Action.UPDATE_TRAIL: "RAISE TRAILING STOP",
+    Action.CANCEL_GTT: "CANCEL GTT",
+    Action.EXIT_POSITION: "EXIT POSITION NOW",
+    Action.HOLD: "HOLD (no change)",
+}
+
+
+class DiscordNotifier:
+    def __init__(self, webhook_url: str | None = None):
+        self.webhook = webhook_url or os.environ.get("DISCORD_WEBHOOK", "")
+
+    def _post(self, content: str) -> None:
+        if not self.webhook:
+            raise RuntimeError("DISCORD_WEBHOOK not configured")
+        data = json.dumps({"content": content[:1900]}).encode()
+        req = urllib.request.Request(
+            self.webhook, data=data,
+            headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=15)
+
+    def _format(self, a: Advisory) -> str:
+        verb = _ACTION_VERB[a.action]
+        if a.action == Action.PLACE_GTT:
+            return (
+                f"- `{a.ticker}` **{verb}** {a.quantity} @ trigger {a.trigger_price:.2f} "
+                f"| on fill place OCO stop `{a.stop_price:.2f}` / target `{a.target_price:.2f}` "
+                f"(regime={a.regime.value}) — {a.rationale}"
+            )
+        if a.action == Action.UPDATE_TRAIL:
+            return f"- `{a.ticker}` **{verb}** to {a.stop_price:.2f} — {a.rationale}"
+        if a.action in (Action.CANCEL_GTT, Action.EXIT_POSITION):
+            return f"- `{a.ticker}` **{verb}** — {a.rationale}"
+        return f"- `{a.ticker}` {verb} — {a.rationale}"
+
+    def send_advisories(self, advisories: list[Advisory]) -> None:
+        actionable = [a for a in advisories if a.action != Action.HOLD]
+        if not actionable:
+            self._post("No actionable advisories this run.")
+            return
+        lines = ["**Swing engine advisories** (Donchian trend + 1% risk)"]
+        lines += [self._format(a) for a in actionable]
+        lines.append("\n_Advisory only. You place/cancel every order manually on Kite._")
+        self._post("\n".join(lines))
+
+    def send_failure(self, error: str, run_id: str) -> None:
+        self._post(f"@here **RUN FAILED** ({run_id})\n```{error[:1500]}```\n"
+                   f"No state was committed. Silence would be wrong — investigate.")
+
+    def send_heartbeat(self, run_id: str) -> None:
+        self._post(f":green_heart: run {run_id} completed OK.")
