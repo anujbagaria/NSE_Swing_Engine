@@ -40,8 +40,9 @@ class CompositeNotifier:
                 + " | ".join(errors)
             )
 
-    def send_advisories(self, advisories: list[Advisory]) -> None:
-        self._fan_out("send_advisories", advisories)
+    def send_advisories(self, advisories: list[Advisory],
+                        failed_tickers: list[tuple[str, str]] | None = None) -> None:
+        self._fan_out("send_advisories", advisories, failed_tickers)
 
     def send_failure(self, error: str, run_id: str) -> None:
         self._fan_out("send_failure", error, run_id)

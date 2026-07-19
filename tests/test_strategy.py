@@ -171,3 +171,53 @@ def test_backtest_has_no_lookahead():
     for tr in res.trades:
         if tr.exit_week:
             assert tr.exit_week > tr.entry_week
+
+
+# --- Composite notifier resilience (added after the Discord 403 incident) ---
+
+class _StubChannel:
+    def __init__(self, fail=False):
+        self.fail = fail
+        self.calls = []
+    def send_advisories(self, advisories, failed_tickers=None):
+        self.calls.append("advisories")
+        if self.fail:
+            raise RuntimeError("channel down")
+    def send_failure(self, error, run_id):
+        self.calls.append("failure")
+        if self.fail:
+            raise RuntimeError("channel down")
+    def send_heartbeat(self, run_id):
+        self.calls.append("heartbeat")
+        if self.fail:
+            raise RuntimeError("channel down")
+
+
+def test_composite_delivers_to_all_healthy_channels():
+    from swing_engine.adapters.notifier_composite import CompositeNotifier
+    a, b = _StubChannel(), _StubChannel()
+    CompositeNotifier([a, b]).send_advisories([])
+    assert a.calls == ["advisories"] and b.calls == ["advisories"]
+
+
+def test_composite_survives_one_channel_failing():
+    # Discord down, email up => run must NOT fail, email still gets it.
+    from swing_engine.adapters.notifier_composite import CompositeNotifier
+    discord_down, email_up = _StubChannel(fail=True), _StubChannel(fail=False)
+    CompositeNotifier([discord_down, email_up]).send_advisories([])  # no raise
+    assert email_up.calls == ["advisories"]
+
+
+def test_composite_raises_only_when_all_channels_fail():
+    from swing_engine.adapters.notifier_composite import CompositeNotifier
+    a, b = _StubChannel(fail=True), _StubChannel(fail=True)
+    with pytest.raises(RuntimeError, match="All notification channels failed"):
+        CompositeNotifier([a, b]).send_advisories([])
+
+
+def test_composite_second_channel_runs_even_if_first_throws():
+    # Guarantees best-effort: a raising first channel must not skip the second.
+    from swing_engine.adapters.notifier_composite import CompositeNotifier
+    first_bad, second_good = _StubChannel(fail=True), _StubChannel(fail=False)
+    CompositeNotifier([first_bad, second_good]).send_advisories([])
+    assert second_good.calls == ["advisories"]  # reached despite first failing

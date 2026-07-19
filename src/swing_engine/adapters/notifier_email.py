@@ -89,16 +89,25 @@ class EmailNotifier:
             return f"- {a.ticker}  {verb} — {a.rationale}"
         return f"- {a.ticker}  {verb} — {a.rationale}"
 
-    def send_advisories(self, advisories: list[Advisory]) -> None:
+    def send_advisories(self, advisories: list[Advisory],
+                        failed_tickers: list[tuple[str, str]] | None = None) -> None:
         actionable = [a for a in advisories if a.action != Action.HOLD]
-        if not actionable:
-            self._send("Swing engine: no actionable advisories",
-                       "No actionable advisories this run.")
-            return
-        body = "Swing engine advisories (Donchian trend + 1% risk)\n\n"
-        body += "\n".join(self._format(a) for a in actionable)
-        body += "\n\nAdvisory only. You place/cancel every order manually on Kite."
-        self._send(f"Swing engine: {len(actionable)} advisory(ies)", body)
+        body = ""
+        if actionable:
+            body += "Swing engine advisories\n\n"
+            body += "\n".join(self._format(a) for a in actionable)
+        else:
+            body += "No actionable advisories this run."
+        if failed_tickers:
+            body += "\n\nWARNING - skipped tickers (data fetch failed):\n"
+            body += "\n".join(f"- {tk}: {err[:140]}" for tk, err in failed_tickers)
+            body += "\nCheck config/universe.json for typos or delisted symbols."
+        if actionable:
+            body += "\n\nAdvisory only. You place/cancel every order manually on Kite."
+        subject = f"Swing engine: {len(actionable)} advisory(ies)"
+        if failed_tickers:
+            subject += f" ({len(failed_tickers)} ticker(s) skipped)"
+        self._send(subject, body)
 
     def send_failure(self, error: str, run_id: str) -> None:
         self._send(

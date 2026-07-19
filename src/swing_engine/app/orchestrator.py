@@ -30,21 +30,42 @@ class Orchestrator:
         try:
             state = self.state_store.load()
             advisories: list[Advisory] = []
-            for ticker in self.config.universe:
-                candles = self.market.fetch_weekly_candles(ticker)
-                news = self.market.fetch_news(ticker)
-                regime = self.sentiment.regime_tag(news, smoothed=True)
-                advisory = strategy.generate_saturday_advisory(
-                    ticker=ticker, candles=candles,
-                    current_price=candles[-1].close, regime=regime,
-                    state=state, config=self.config,
+            failed: list[tuple[str, str]] = []
+
+            # Universe from config/universe.json (operator-editable). A load
+            # problem falls back to the built-in default and is REPORTED, not
+            # swallowed.
+            from .universe_loader import load_universe
+            universe, warning = load_universe(getattr(self.state_store, "repo", "."))
+            if warning:
+                failed.append(("universe.json", warning))
+
+            for ticker in universe:
+                try:
+                    candles = self.market.fetch_weekly_candles(ticker)
+                    news = self.market.fetch_news(ticker)
+                    regime = self.sentiment.regime_tag(news, smoothed=True)
+                    advisory = strategy.generate_saturday_advisory(
+                        ticker=ticker, candles=candles,
+                        current_price=candles[-1].close, regime=regime,
+                        state=state, config=self.config,
+                    )
+                    advisories.append(advisory)
+                except Exception as exc:  # noqa: BLE001 — isolate per ticker
+                    # A bad ticker (typo, delisting, vendor outage) must not
+                    # kill the run: skip it, keep the reason, tell the human.
+                    failed.append((ticker, f"{type(exc).__name__}: {exc}"))
+
+            if not advisories and failed:
+                # Everything failed — that's a real run failure, not a skip.
+                raise RuntimeError(
+                    f"All {len(failed)} tickers failed; first: {failed[0][1]}"
                 )
-                advisories.append(advisory)
 
             state.active_advisories = advisories
             state.last_saturday_run = datetime.now(timezone.utc).isoformat()
             self._commit(state, run_id)
-            self.notifier.send_advisories(advisories)
+            self.notifier.send_advisories(advisories, failed_tickers=failed or None)
             self.notifier.send_heartbeat(run_id)
             return advisories
         except Exception as exc:  # noqa: BLE001 — top-level guard by design
@@ -59,22 +80,26 @@ class Orchestrator:
         try:
             state = self.state_store.load()
             deltas: list[Advisory] = []
+            failed: list[tuple[str, str]] = []
             for sat_advisory in state.active_advisories:
                 if sat_advisory.action.value == "hold":
                     continue
-                snapshot = self.market.fetch_price_snapshot(sat_advisory.ticker)
-                news = self.market.fetch_news(sat_advisory.ticker)
-                fresh_regime = self.sentiment.regime_tag(news, smoothed=False)
-                result = strategy.reconcile_monday(
-                    snapshot=snapshot, saturday_advisory=sat_advisory,
-                    fresh_regime=fresh_regime, config=self.config,
-                )
-                deltas.append(result)
+                try:
+                    snapshot = self.market.fetch_price_snapshot(sat_advisory.ticker)
+                    news = self.market.fetch_news(sat_advisory.ticker)
+                    fresh_regime = self.sentiment.regime_tag(news, smoothed=False)
+                    result = strategy.reconcile_monday(
+                        snapshot=snapshot, saturday_advisory=sat_advisory,
+                        fresh_regime=fresh_regime, config=self.config,
+                    )
+                    deltas.append(result)
+                except Exception as exc:  # noqa: BLE001 — isolate per ticker
+                    failed.append((sat_advisory.ticker, f"{type(exc).__name__}: {exc}"))
 
             state.last_monday_run = datetime.now(timezone.utc).isoformat()
             self._commit(state, run_id)
             changed = [d for d in deltas if d.action.value != "hold"]
-            self.notifier.send_advisories(changed)
+            self.notifier.send_advisories(changed, failed_tickers=failed or None)
             self.notifier.send_heartbeat(run_id)
             return changed
         except Exception as exc:  # noqa: BLE001

@@ -70,3 +70,24 @@ class StrategyConfig:
 
 
 DEFAULT_CONFIG = StrategyConfig()
+
+
+# --- Dual-momentum rotation parameters (appended; used by rotation.py) ---
+# Kept as module-level additions so the existing StrategyConfig consumers are
+# untouched. rotation.py reads these off the same DEFAULT_CONFIG instance via
+# getattr-style access below.
+from dataclasses import replace as _replace  # noqa: E402
+
+def _augment_rotation(cfg: "StrategyConfig") -> "StrategyConfig":
+    # attach rotation attrs without a schema break; frozen dataclass -> use object.__setattr__
+    object.__setattr__(cfg, "momentum_lookback", 26)     # 26-week (~6mo), operator choice
+    object.__setattr__(cfg, "top_n", 2)                  # hold top 2
+    object.__setattr__(cfg, "cash_hurdle_return", 0.0)   # absolute momentum: beat 0% (cash proxy)
+    object.__setattr__(cfg, "regime_hurdle_shift", {
+        Regime.RISK_OFF: +0.03,   # risk-off: demand +3% more before entering
+        Regime.NEUTRAL:  0.0,
+        Regime.RISK_ON:  -0.01,   # risk-on: slightly easier gate
+    })
+    return cfg
+
+_augment_rotation(DEFAULT_CONFIG)

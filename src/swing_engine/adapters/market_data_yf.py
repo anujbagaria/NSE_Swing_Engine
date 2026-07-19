@@ -13,14 +13,16 @@ from ..domain.types import Candle, PriceSnapshot
 
 
 class YFinanceMarketData:
-    def __init__(self, config: StrategyConfig):
+    def __init__(self, config: StrategyConfig, period_override: str | None = None):
         self.config = config
+        # e.g. "max" for full-cycle backtests; None = config-driven lookback.
+        self.period_override = period_override
 
     def fetch_weekly_candles(self, ticker: str) -> list[Candle]:
         import pandas as pd  # local import keeps domain import-light
         import yfinance as yf
 
-        period = f"{self.config.lookback_years + 1}y"  # pad for the SMA warm-up
+        period = self.period_override or f"{self.config.lookback_years + 1}y"
         df = yf.download(
             ticker, period=period, interval="1wk",
             auto_adjust=True, progress=False,

@@ -1,0 +1,21 @@
+{
+  "_comment": "ETF universe for the rotation engine. Add/remove NSE tickers here (Yahoo Finance format: SYMBOL.NS). Invalid tickers are skipped at runtime with a Discord warning, so a typo cannot kill a run. Prefer liquid, non-speculative ETFs; every addition widens the cross-sectional ranking.",
+  "universe": [
+    "MID150BEES.NS",
+    "BANKBEES.NS",
+    "ITBEES.NS",
+    "GOLDBEES.NS",
+    "SILVERBEES.NS",
+    "PHARMABEES.NS",
+    "JUNIORBEES.NS",
+    "INFRABEES.NS",
+    "NIF100BEES.NS",
+    "CONSUMBEES.NS",
+    "CPSEETF.NS",
+    "NV20BEES.NS",
+    "AUTOBEES.NS",
+    "MANUFGBEES.NS",
+    "HDFCSML250.NS",
+    "MODEFENCE.NS"
+  ]
+}
