@@ -13,7 +13,8 @@ from swing_engine.domain.types import Candle, PortfolioState, PriceSnapshot, Reg
 
 # ---------- universe loader ----------
 
-def test_missing_file_falls_back_with_warning(tmp_path):
+def test_missing_file_falls_back_with_warning(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)  # pin CWD so the parent-walk can't find the real file
     tickers, warning = load_universe(tmp_path)
     assert tickers == list(DEFAULT_CONFIG.universe)
     assert warning and "not found" in warning
@@ -143,8 +144,9 @@ def test_all_tickers_failing_fails_the_run(tmp_path):
     assert notifier.failures_sent                           # loud, not silent
 
 
-def test_universe_warning_is_surfaced_not_swallowed(tmp_path):
+def test_universe_warning_is_surfaced_not_swallowed(tmp_path, monkeypatch):
     from swing_engine.app.orchestrator import Orchestrator
+    monkeypatch.chdir(tmp_path)  # pin CWD so the parent-walk can't find the real file
     # No universe file at all -> default universe used, warning reported.
     notifier = RecordingNotifier()
     orch = Orchestrator(DEFAULT_CONFIG, FailingMarket(), StubSentiment(),
@@ -153,3 +155,49 @@ def test_universe_warning_is_surfaced_not_swallowed(tmp_path):
     assert notifier.failed is not None
     assert notifier.failed[0][0] == "universe.json"
     assert "not found" in notifier.failed[0][1]
+
+
+# ---------- live rotation wiring ----------
+
+def test_saturday_emits_rotation_advisories(tmp_path, monkeypatch):
+    """The rewired live run must produce PLACE_GTT entries for the top-2."""
+    from swing_engine.app.orchestrator import Orchestrator
+    from swing_engine.domain.types import Action
+
+    class RankedMarket(FailingMarket):
+        RATES = {"FAST.NS": 1.5, "MID.NS": 1.0, "SLOW.NS": 0.2}
+        def fetch_weekly_candles(self, ticker):
+            r = self.RATES[ticker]
+            s = date(2023, 1, 2)
+            return [Candle(week_start=s + timedelta(weeks=i), open=100 + i * r,
+                           high=101 + i * r, low=99 + i * r, close=100 + i * r,
+                           volume=1000) for i in range(60)]
+
+    _make_universe_file(tmp_path, ["FAST.NS", "MID.NS", "SLOW.NS"])
+    notifier = RecordingNotifier()
+    orch = Orchestrator(DEFAULT_CONFIG, RankedMarket(), StubSentiment(),
+                        MemoryState(repo=tmp_path), notifier)
+    advisories = orch.run_saturday()
+    entries = {a.ticker for a in advisories if a.action == Action.PLACE_GTT}
+    assert entries == {"FAST.NS", "MID.NS"}   # top-2 by momentum, SLOW excluded
+
+
+def test_exit_suppressed_when_held_ticker_data_fails(tmp_path, monkeypatch):
+    """A data outage on a HELD ticker must NOT produce an EXIT advisory."""
+    from swing_engine.app.orchestrator import Orchestrator
+    from swing_engine.domain.types import Action, Position
+
+    _make_universe_file(tmp_path, ["GOOD1.NS", "BAD.NS", "GOOD2.NS"])
+    st = MemoryState(repo=tmp_path)
+    st.s = PortfolioState(capital=100000.0, open_positions=[
+        Position("BAD.NS", 100.0, 50, 90.0, 105.0),   # held, but data will fail
+    ])
+    notifier = RecordingNotifier()
+    orch = Orchestrator(DEFAULT_CONFIG, FailingMarket(), StubSentiment(),
+                        st, notifier)
+    advisories = orch.run_saturday()
+    exits = [a for a in advisories if a.action == Action.EXIT_POSITION
+             and a.ticker == "BAD.NS"]
+    assert exits == []                                # outage != sell signal
+    reasons = [msg for tk, msg in (notifier.failed or []) if tk == "BAD.NS"]
+    assert any("suppressed" in m for m in reasons)     # and it's surfaced
