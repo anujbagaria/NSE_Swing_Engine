@@ -10,10 +10,10 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from ..domain import strategy
+from ..domain import rotation, strategy
 from ..domain.config import StrategyConfig
 from ..domain.ports import MarketDataPort, NotifierPort, SentimentPort, StatePort
-from ..domain.types import Advisory, PortfolioState
+from ..domain.types import Action, Advisory, PortfolioState
 
 
 class Orchestrator:
@@ -29,38 +29,51 @@ class Orchestrator:
         self.state_store.acquire_lock(run_id)
         try:
             state = self.state_store.load()
-            advisories: list[Advisory] = []
             failed: list[tuple[str, str]] = []
 
             # Universe from config/universe.json (operator-editable). A load
-            # problem falls back to the built-in default and is REPORTED, not
-            # swallowed.
+            # problem falls back to the built-in default and is REPORTED.
             from .universe_loader import load_universe
             universe, warning = load_universe(getattr(self.state_store, "repo", "."))
             if warning:
                 failed.append(("universe.json", warning))
 
+            # Cross-sectional strategy: gather the WHOLE universe first, with
+            # per-ticker fault isolation (a typo/delisting must not kill the run).
+            candles_by_ticker: dict[str, list] = {}
+            news_parts: list[str] = []
             for ticker in universe:
                 try:
-                    candles = self.market.fetch_weekly_candles(ticker)
-                    news = self.market.fetch_news(ticker)
-                    regime = self.sentiment.regime_tag(news, smoothed=True)
-                    advisory = strategy.generate_saturday_advisory(
-                        ticker=ticker, candles=candles,
-                        current_price=candles[-1].close, regime=regime,
-                        state=state, config=self.config,
-                    )
-                    advisories.append(advisory)
+                    candles_by_ticker[ticker] = self.market.fetch_weekly_candles(ticker)
+                    news_parts.append(self.market.fetch_news(ticker))
                 except Exception as exc:  # noqa: BLE001 — isolate per ticker
-                    # A bad ticker (typo, delisting, vendor outage) must not
-                    # kill the run: skip it, keep the reason, tell the human.
                     failed.append((ticker, f"{type(exc).__name__}: {exc}"))
 
-            if not advisories and failed:
-                # Everything failed — that's a real run failure, not a skip.
+            if not candles_by_ticker:
                 raise RuntimeError(
                     f"All {len(failed)} tickers failed; first: {failed[0][1]}"
                 )
+
+            # One regime for the book (rotation is portfolio-level). Sentiment
+            # shifts only the cash hurdle, never the ranking.
+            regime = self.sentiment.regime_tag(" | ".join(news_parts), smoothed=True)
+            advisories = rotation.generate_rotation_advisories(
+                candles_by_ticker, regime, state, self.config,
+            )
+
+            # SAFETY RULE: if a HELD ticker's data failed to fetch, rotation
+            # couldn't rank it and would advise EXIT purely because it's absent
+            # from the target book. A data outage must never masquerade as a
+            # sell signal — suppress that exit and surface the failure instead.
+            failed_set = {tk for tk, _ in failed}
+            suppressed = [a for a in advisories
+                          if a.action == Action.EXIT_POSITION and a.ticker in failed_set]
+            if suppressed:
+                advisories = [a for a in advisories if a not in suppressed]
+                for a in suppressed:
+                    failed.append((a.ticker,
+                                   "EXIT advice suppressed: data fetch failed, "
+                                   "not a real rotation signal. Verify manually."))
 
             state.active_advisories = advisories
             state.last_saturday_run = datetime.now(timezone.utc).isoformat()
