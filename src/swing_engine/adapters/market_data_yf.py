@@ -12,6 +12,51 @@ from ..domain.config import StrategyConfig
 from ..domain.types import Candle, PriceSnapshot
 
 
+def _flatten_columns(df, ticker: str):
+    """Normalize yfinance columns to simple names: Open/High/Low/Close/Volume.
+
+    Recent yfinance returns a MultiIndex even for a single ticker, and the level
+    order has varied across versions — sometimes ('Close','TICKER'), sometimes
+    ('TICKER','Close'). We pick whichever level actually contains the OHLC names
+    so downstream code always sees flat column names. This is the fix for the
+    'float() argument must be ... not Series' error, which happens when a
+    MultiIndex leaves df['Close'] returning a whole sub-frame instead of a column.
+    """
+    import pandas as pd
+
+    if isinstance(df.columns, pd.MultiIndex):
+        ohlc = {"Open", "High", "Low", "Close", "Adj Close", "Volume"}
+        chosen = None
+        for lvl in range(df.columns.nlevels):
+            values = set(df.columns.get_level_values(lvl))
+            if values & ohlc:               # this level holds the price fields
+                chosen = lvl
+                break
+        if chosen is None:
+            chosen = 0
+        df = df.copy()
+        df.columns = df.columns.get_level_values(chosen)
+    # Deduplicate any repeated column labels (keep first), so df['Close'] is 1-D.
+    df = df.loc[:, ~df.columns.duplicated(keep="first")]
+    return df
+
+
+def _scalar(value):
+    """Coerce a cell to a float, even if pandas hands back a 1-element Series.
+
+    The defensive core of the fix: if a stray duplicate column ever makes a cell
+    a Series again, take its first element rather than crashing on float(Series).
+    Returns None for missing/non-numeric so the caller can skip the row.
+    """
+    try:
+        if hasattr(value, "iloc"):          # it's a Series, not a scalar
+            value = value.iloc[0]
+        f = float(value)
+        return f if f == f else None        # NaN check (NaN != NaN)
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
 class YFinanceMarketData:
     def __init__(self, config: StrategyConfig, period_override: str | None = None):
         self.config = config
@@ -30,9 +75,7 @@ class YFinanceMarketData:
         if df is None or df.empty:
             raise RuntimeError(f"yfinance returned no weekly data for {ticker}")
 
-        # yfinance may return a MultiIndex column frame for a single ticker.
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
+        df = _flatten_columns(df, ticker)
 
         df = df[~df.index.duplicated(keep="last")]
         df = df.dropna(subset=["Open", "High", "Low", "Close"])
@@ -48,12 +91,15 @@ class YFinanceMarketData:
             # that week's Friday (week_start + 4 days).
             if (today - week_start).days < 5:
                 continue
-            o, h, l, c = float(row["Open"]), float(row["High"]), float(row["Low"]), float(row["Close"])
-            v = float(row.get("Volume", 0) or 0)
+            o = _scalar(row["Open"]); h = _scalar(row["High"])
+            l = _scalar(row["Low"]); c = _scalar(row["Close"])
+            v = _scalar(row["Volume"]) if "Volume" in row else 0.0
+            if o is None or h is None or l is None or c is None:
+                continue
             if not (h >= max(o, c) and l <= min(o, c)):
                 # OHLC sanity failed — skip rather than trust bad data.
                 continue
-            candles.append(Candle(week_start=week_start, open=o, high=h, low=l, close=c, volume=v))
+            candles.append(Candle(week_start=week_start, open=o, high=h, low=l, close=c, volume=v or 0.0))
 
         if not candles:
             raise RuntimeError(f"No valid completed weekly candles for {ticker}")
@@ -66,7 +112,13 @@ class YFinanceMarketData:
                          auto_adjust=True, progress=False)
         if df is None or df.empty:
             raise RuntimeError(f"yfinance returned no daily data for {ticker}")
-        last_close = float(df["Close"].dropna().iloc[-1])
+        df = _flatten_columns(df, ticker)
+        closes = df["Close"].dropna()
+        if closes.empty:
+            raise RuntimeError(f"no valid close price for {ticker}")
+        last_close = _scalar(closes.iloc[-1])
+        if last_close is None:
+            raise RuntimeError(f"could not parse last close for {ticker}")
         return PriceSnapshot(
             ticker=ticker, price=last_close,
             as_of=datetime.now(timezone.utc),
