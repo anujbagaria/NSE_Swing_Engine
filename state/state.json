@@ -2,7 +2,7 @@
   "schema_version": 2,
   "capital": 100000.0,
   "last_saturday_run": "2026-07-19T13:24:29.402271+00:00",
-  "last_monday_run": null,
+  "last_monday_run": "2026-07-20T05:01:08.101219+00:00",
   "open_positions": [],
   "active_advisories": [
     {
