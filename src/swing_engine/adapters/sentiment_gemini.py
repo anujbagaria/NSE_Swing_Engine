@@ -19,7 +19,7 @@ from pydantic import BaseModel
 from ..domain.config import StrategyConfig
 from ..domain.types import Regime
 
-PINNED_MODEL = "gemini-2.5-flash"  # pin explicitly; bump deliberately, never implicitly
+PINNED_MODEL = "gemini-3.5-flash"  # pin explicitly; bump deliberately, never implicitly
 
 _REGIME_TO_SCORE = {Regime.RISK_OFF: -1.0, Regime.NEUTRAL: 0.0, Regime.RISK_ON: 1.0}
 _SCORE_TO_REGIME = [  # (upper_bound, regime); first match wins
