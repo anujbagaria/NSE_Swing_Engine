@@ -21,7 +21,6 @@ from ..domain.types import Advisory, PortfolioState, Position
 
 LOCK_TTL = timedelta(minutes=30)
 
-
 class GitState:
     def __init__(self, repo_dir: str, state_filename: str = "state/state.json",
                  sentiment_filename: str = "state/sentiment_history.json"):
@@ -29,6 +28,19 @@ class GitState:
         self.state_path = self.repo / state_filename
         self.sentiment_path = self.repo / sentiment_filename
         self.lock_path = self.repo / "state" / ".lock"
+
+    def _safe_isoformat(val):
+        """
+        Safely converts a datetime object to an ISO 8601 string. 
+        If it's already a string (from a previous load) or None, it passes it through.
+        """
+        if val is None:
+            return None
+        if isinstance(val, str):
+            return val
+        if hasattr(val, 'isoformat'):
+            return val.isoformat()
+        return str(val)
 
     def acquire_lock(self, run_id: str) -> None:
         self.lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -105,8 +117,11 @@ class GitState:
         d["side"] = a.side.value
         d["action"] = a.action.value
         d["regime"] = a.regime.value
-        d["channel_as_of"] = a.channel_as_of.isoformat()
+        #d["channel_as_of"] = a.channel_as_of.isoformat()
+        if hasattr(a, 'channel_as_of') and a.channel_as_of is not None:
+            d["channel_as_of"] = _safe_isoformat(a.channel_as_of)
         d["created_at"] = a.created_at.isoformat()
+        
         return d
 
     @staticmethod
