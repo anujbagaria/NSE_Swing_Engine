@@ -21,6 +21,19 @@ from ..domain.types import Advisory, PortfolioState, Position
 
 LOCK_TTL = timedelta(minutes=30)
 
+def _safe_isoformat(val):
+    """
+    Safely converts a datetime object to an ISO 8601 string. 
+    If it's already a string (from a previous load) or None, it passes it through.
+    """
+    if val is None:
+        return None
+    if isinstance(val, str):
+        return val
+    if hasattr(val, 'isoformat'):
+        return val.isoformat()
+    return str(val)
+
 class GitState:
     def __init__(self, repo_dir: str, state_filename: str = "state/state.json",
                  sentiment_filename: str = "state/sentiment_history.json"):
@@ -28,19 +41,6 @@ class GitState:
         self.state_path = self.repo / state_filename
         self.sentiment_path = self.repo / sentiment_filename
         self.lock_path = self.repo / "state" / ".lock"
-
-    def _safe_isoformat(val):
-        """
-        Safely converts a datetime object to an ISO 8601 string. 
-        If it's already a string (from a previous load) or None, it passes it through.
-        """
-        if val is None:
-            return None
-        if isinstance(val, str):
-            return val
-        if hasattr(val, 'isoformat'):
-            return val.isoformat()
-        return str(val)
 
     def acquire_lock(self, run_id: str) -> None:
         self.lock_path.parent.mkdir(parents=True, exist_ok=True)
