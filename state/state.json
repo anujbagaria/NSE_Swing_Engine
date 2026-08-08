@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-08-01T05:39:15.991057+00:00",
+  "last_saturday_run": "2026-08-08T03:49:02.663879+00:00",
   "last_monday_run": "2026-08-03T04:58:58.295170+00:00",
   "open_positions": [],
   "active_advisories": [
@@ -9,16 +9,16 @@
       "ticker": "MID150BEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 239.47999572753906,
-      "limit_price": 239.47999572753906,
-      "stop_price": 215.94798889160157,
+      "trigger_price": 241.5800018310547,
+      "limit_price": 241.5800018310547,
+      "stop_price": 217.76999206542968,
       "target_price": 0.0,
-      "quantity": 42,
+      "quantity": 41,
       "regime": "neutral",
-      "atr": 7.844002278645833,
-      "channel_as_of": "2026-07-27",
-      "created_at": "2026-08-01T05:39:15.990898+00:00",
-      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +9.8%, passed cash gate). Buy ~42 @ 239.48; place sell-GTT stop 215.95 (3.0xATR)."
+      "atr": 7.936669921875,
+      "channel_as_of": "2026-08-03",
+      "created_at": "2026-08-08T03:49:02.663709+00:00",
+      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +6.5%, passed cash gate). Buy ~41 @ 241.58; place sell-GTT stop 217.77 (3.0xATR)."
     }
   ]
 }
