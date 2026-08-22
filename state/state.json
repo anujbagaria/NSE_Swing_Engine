@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-08-15T03:10:24.458712+00:00",
+  "last_saturday_run": "2026-08-22T03:14:14.275802+00:00",
   "last_monday_run": "2026-08-17T02:38:06.616394+00:00",
   "open_positions": [],
   "active_advisories": [
@@ -9,16 +9,31 @@
       "ticker": "MID150BEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 242.91000366210938,
-      "limit_price": 242.91000366210938,
-      "stop_price": 220.0919921875,
+      "trigger_price": 242.3000030517578,
+      "limit_price": 242.3000030517578,
+      "stop_price": 220.19198913574218,
       "target_price": 0.0,
-      "quantity": 43,
+      "quantity": 45,
       "regime": "neutral",
-      "atr": 7.606003824869791,
-      "channel_as_of": "2026-08-10",
-      "created_at": "2026-08-15T03:10:24.458586+00:00",
-      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +7.3%, passed cash gate). Buy ~43 @ 242.91; place sell-GTT stop 220.09 (3.0xATR)."
+      "atr": 7.369337972005209,
+      "channel_as_of": "2026-08-17",
+      "created_at": "2026-08-22T03:14:14.275657+00:00",
+      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +7.0%, passed cash gate). Buy ~45 @ 242.30; place sell-GTT stop 220.19 (3.0xATR)."
+    },
+    {
+      "ticker": "GOLDBEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 131.32000732421875,
+      "limit_price": 131.32000732421875,
+      "stop_price": 112.88201293945312,
+      "target_price": 0.0,
+      "quantity": 54,
+      "regime": "neutral",
+      "atr": 6.145998128255209,
+      "channel_as_of": "2026-08-17",
+      "created_at": "2026-08-22T03:14:14.275657+00:00",
+      "rationale": "Rotate IN: GOLDBEES.NS entered top 2 (momentum +3.0%, passed cash gate). Buy ~54 @ 131.32; place sell-GTT stop 112.88 (3.0xATR)."
     }
   ]
 }
