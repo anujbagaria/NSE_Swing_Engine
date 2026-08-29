@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-08-22T03:14:14.275802+00:00",
+  "last_saturday_run": "2026-08-29T09:13:23.905241+00:00",
   "last_monday_run": "2026-08-24T02:41:34.944526+00:00",
   "open_positions": [],
   "active_advisories": [
@@ -9,31 +9,31 @@
       "ticker": "MID150BEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 242.3000030517578,
-      "limit_price": 242.3000030517578,
-      "stop_price": 220.19198913574218,
+      "trigger_price": 243.6300048828125,
+      "limit_price": 243.6300048828125,
+      "stop_price": 222.16999206542968,
       "target_price": 0.0,
-      "quantity": 45,
+      "quantity": 46,
       "regime": "neutral",
-      "atr": 7.369337972005209,
-      "channel_as_of": "2026-08-17",
-      "created_at": "2026-08-22T03:14:14.275657+00:00",
-      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +7.0%, passed cash gate). Buy ~45 @ 242.30; place sell-GTT stop 220.19 (3.0xATR)."
+      "atr": 7.153337605794271,
+      "channel_as_of": "2026-08-24",
+      "created_at": "2026-08-29T09:13:23.905103+00:00",
+      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +7.8%, passed cash gate). Buy ~46 @ 243.63; place sell-GTT stop 222.17 (3.0xATR)."
     },
     {
-      "ticker": "GOLDBEES.NS",
+      "ticker": "ITBEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 131.32000732421875,
-      "limit_price": 131.32000732421875,
-      "stop_price": 112.88201293945312,
+      "trigger_price": 34.70000076293945,
+      "limit_price": 34.70000076293945,
+      "stop_price": 28.239999771118164,
       "target_price": 0.0,
-      "quantity": 54,
+      "quantity": 154,
       "regime": "neutral",
-      "atr": 6.145998128255209,
-      "channel_as_of": "2026-08-17",
-      "created_at": "2026-08-22T03:14:14.275657+00:00",
-      "rationale": "Rotate IN: GOLDBEES.NS entered top 2 (momentum +3.0%, passed cash gate). Buy ~54 @ 131.32; place sell-GTT stop 112.88 (3.0xATR)."
+      "atr": 2.1533336639404297,
+      "channel_as_of": "2026-08-24",
+      "created_at": "2026-08-29T09:13:23.905103+00:00",
+      "rationale": "Rotate IN: ITBEES.NS entered top 2 (momentum +2.6%, passed cash gate). Buy ~154 @ 34.70; place sell-GTT stop 28.24 (3.0xATR)."
     }
   ]
 }
