@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-10-10T08:43:14.646937+00:00",
+  "last_saturday_run": "2026-10-17T07:04:55.081320+00:00",
   "last_monday_run": "2026-10-12T07:37:55.746698+00:00",
   "open_positions": [],
   "active_advisories": [
@@ -9,16 +9,31 @@
       "ticker": "MID150BEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 223.72000122070312,
-      "limit_price": 223.72000122070312,
-      "stop_price": 201.13998718261718,
+      "trigger_price": 225.0,
+      "limit_price": 225.0,
+      "stop_price": 202.233984375,
       "target_price": 0.0,
-      "quantity": 44,
+      "quantity": 43,
       "regime": "neutral",
-      "atr": 7.526671346028646,
-      "channel_as_of": "2026-10-05",
-      "created_at": "2026-10-10T08:43:14.646773+00:00",
-      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +9.2%, passed cash gate). Buy ~44 @ 223.72; place sell-GTT stop 201.14 (3.0xATR)."
+      "atr": 7.588671875,
+      "channel_as_of": "2026-10-12",
+      "created_at": "2026-10-17T07:04:55.081188+00:00",
+      "rationale": "Rotate IN: MID150BEES.NS entered top 2 (momentum +2.4%, passed cash gate). Buy ~43 @ 225.00; place sell-GTT stop 202.23 (3.0xATR)."
+    },
+    {
+      "ticker": "ITBEES.NS",
+      "side": "buy",
+      "action": "place_gtt",
+      "trigger_price": 35.5099983215332,
+      "limit_price": 35.5099983215332,
+      "stop_price": 29.091999053955078,
+      "target_price": 0.0,
+      "quantity": 155,
+      "regime": "neutral",
+      "atr": 2.1393330891927085,
+      "channel_as_of": "2026-10-12",
+      "created_at": "2026-10-17T07:04:55.081188+00:00",
+      "rationale": "Rotate IN: ITBEES.NS entered top 2 (momentum +1.2%, passed cash gate). Buy ~155 @ 35.51; place sell-GTT stop 29.09 (3.0xATR)."
     }
   ]
 }
