@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-10-24T07:28:43.661353+00:00",
+  "last_saturday_run": "2026-10-31T08:36:27.184601+00:00",
   "last_monday_run": "2026-10-26T06:36:31.829399+00:00",
   "open_positions": [],
   "active_advisories": [
@@ -9,16 +9,16 @@
       "ticker": "ITBEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 35.619998931884766,
-      "limit_price": 35.619998931884766,
-      "stop_price": 29.047999572753906,
+      "trigger_price": 36.22999954223633,
+      "limit_price": 36.22999954223633,
+      "stop_price": 29.531999588012695,
       "target_price": 0.0,
-      "quantity": 152,
+      "quantity": 149,
       "regime": "neutral",
-      "atr": 2.1906664530436197,
-      "channel_as_of": "2026-10-19",
-      "created_at": "2026-10-24T07:28:43.661196+00:00",
-      "rationale": "Rotate IN: ITBEES.NS entered top 2 (momentum +12.7%, passed cash gate). Buy ~152 @ 35.62; place sell-GTT stop 29.05 (3.0xATR)."
+      "atr": 2.2326666514078775,
+      "channel_as_of": "2026-10-26",
+      "created_at": "2026-10-31T08:36:27.184478+00:00",
+      "rationale": "Rotate IN: ITBEES.NS entered top 2 (momentum +11.7%, passed cash gate). Buy ~149 @ 36.23; place sell-GTT stop 29.53 (3.0xATR)."
     }
   ]
 }
