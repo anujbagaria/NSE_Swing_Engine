@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "capital": 100000.0,
-  "last_saturday_run": "2026-11-07T08:59:57.435758+00:00",
+  "last_saturday_run": "2026-11-14T09:11:17.874816+00:00",
   "last_monday_run": "2026-11-09T08:17:03.008850+00:00",
   "open_positions": [],
   "active_advisories": [
@@ -9,31 +9,31 @@
       "ticker": "ITBEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 36.65999984741211,
-      "limit_price": 36.65999984741211,
-      "stop_price": 29.797999954223634,
+      "trigger_price": 35.599998474121094,
+      "limit_price": 35.599998474121094,
+      "stop_price": 28.99199867248535,
       "target_price": 0.0,
-      "quantity": 145,
+      "quantity": 151,
       "regime": "neutral",
-      "atr": 2.287333297729492,
-      "channel_as_of": "2026-11-02",
-      "created_at": "2026-11-07T08:59:57.435617+00:00",
-      "rationale": "Rotate IN: ITBEES.NS entered top 2 (momentum +12.9%, passed cash gate). Buy ~145 @ 36.66; place sell-GTT stop 29.80 (3.0xATR)."
+      "atr": 2.2026666005452475,
+      "channel_as_of": "2026-11-09",
+      "created_at": "2026-11-14T09:11:17.874688+00:00",
+      "rationale": "Rotate IN: ITBEES.NS entered top 2 (momentum +16.0%, passed cash gate). Buy ~151 @ 35.60; place sell-GTT stop 28.99 (3.0xATR)."
     },
     {
       "ticker": "BANKBEES.NS",
       "side": "buy",
       "action": "place_gtt",
-      "trigger_price": 609.3699951171875,
-      "limit_price": 609.3699951171875,
-      "stop_price": 555.7640014648438,
+      "trigger_price": 630.0,
+      "limit_price": 630.0,
+      "stop_price": 569.9520141601563,
       "target_price": 0.0,
-      "quantity": 18,
+      "quantity": 16,
       "regime": "neutral",
-      "atr": 17.86866455078125,
-      "channel_as_of": "2026-11-02",
-      "created_at": "2026-11-07T08:59:57.435617+00:00",
-      "rationale": "Rotate IN: BANKBEES.NS entered top 2 (momentum +6.7%, passed cash gate). Buy ~18 @ 609.37; place sell-GTT stop 555.76 (3.0xATR)."
+      "atr": 20.015995279947916,
+      "channel_as_of": "2026-11-09",
+      "created_at": "2026-11-14T09:11:17.874688+00:00",
+      "rationale": "Rotate IN: BANKBEES.NS entered top 2 (momentum +13.8%, passed cash gate). Buy ~16 @ 630.00; place sell-GTT stop 569.95 (3.0xATR)."
     }
   ]
 }
